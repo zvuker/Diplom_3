@@ -1,4 +1,4 @@
-import page_object.MainSite;
+import pageobject.MainSite;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
@@ -9,6 +9,9 @@ import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
@@ -34,11 +37,13 @@ public class UserPageTransitionsTest {
     }
 
     @Parameterized.Parameters(name = "проверка браузера: {0}")
-    public static Object[][] dataDriver() {
-        return new Object[][]{
-                {"chromedriver"},
-                {"yandexdriver"},
-        };
+    public static List<String> dataDriver() {
+        String browser = System.getenv("BROWSER");
+        if (browser != null && !browser.isEmpty()) {
+            return Arrays.asList(browser);
+        } else {
+            return Arrays.asList("yandexdriver", "chromedriver");
+        }
     }
 
     @Test

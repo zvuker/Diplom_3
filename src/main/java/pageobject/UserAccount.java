@@ -1,4 +1,4 @@
-package page_object;
+package pageobject;
 
 import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
@@ -41,7 +41,6 @@ public class UserAccount {
 
     @Step("ожидание загрузки кабинета с текстом")
     public void waitProfilePageLoad() {
-        // подожди 3 секунды, чтобы элемент с нужным текстом стал видимым
         new WebDriverWait(driver, 3)
                 .until(ExpectedConditions.visibilityOfElementLocated(profilePageText));
     }

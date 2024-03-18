@@ -1,6 +1,10 @@
-import page_object.MainSite;
-import page_object.Register;
-import page_object.RecoverPassword;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import org.junit.Assert;
+import pageobject.MainSite;
+import pageobject.Register;
+import pageobject.RecoverPassword;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
@@ -11,6 +15,9 @@ import io.qameta.allure.junit4.DisplayName;
 import io.qameta.allure.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 
@@ -18,8 +25,8 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 public class UserAuthorization {
     private WebDriver driver;
     private String browserType;
-    private final static String USER_EMAIL = "2054@gmail.com";
-    private final static String USER_PASSWORD = "1234567";
+    private final static String userEmail = "2054@gmail.com";
+    private final static String userPassword = "1234567";
 
     public UserAuthorization(String browserType) {
         this.browserType = browserType;
@@ -44,11 +51,34 @@ public class UserAuthorization {
     }
 
     @Parameterized.Parameters(name = "проверка браузера: {0}")
-    public static Object[][] dataDriver() {
-        return new Object[][]{
-                {"chromedriver"},
-                {"yandexdriver"},
-        };
+    public static List<String> dataDriver() {
+        String browser = System.getenv("BROWSER");
+        if (browser != null && !browser.isEmpty()) {
+            return Arrays.asList(browser);
+        } else {
+            return Arrays.asList("yandexdriver", "chromedriver");
+        }
+    }
+
+    @Before
+    public void createUser() {
+        RestAssured.baseURI = "https://stellarburgers.nomoreparties.site";
+        Response response = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body("{\n" +
+                        "\"email\": \"" + userEmail + "\",\n" +
+                        "\"password\": \"" + userPassword + "\",\n" +
+                        "\"name\": \"Username\"\n" +
+                        "}")
+                .when()
+                .post("/api/auth/register");
+
+        if (response.getStatusCode() != 200 && !response.getBody().asString().contains("User already exists")) {
+            System.out.println("Ошибка создания пользователя: " + response.getBody().asString());
+            Assert.fail("Ошибка создания пользователя");
+        } else if (response.getStatusCode() == 200) {
+            System.out.println("Пользователь успешно создан");
+        }
     }
 
     @Test
@@ -57,8 +87,8 @@ public class UserAuthorization {
     public void clickLoginButtonTest() {
         MainSite mainSite = new MainSite(driver);
         mainSite.clickLoginButton();
-        page_object.UserAuthentication userAuthentication = new page_object.UserAuthentication(driver);
-        userAuthentication.authUser(USER_EMAIL, USER_PASSWORD);
+        pageobject.UserAuthentication userAuthentication = new pageobject.UserAuthentication(driver);
+        userAuthentication.authUser(userEmail, userPassword);
         mainSite.waitMainPageLoad();
     }
 
@@ -68,8 +98,8 @@ public class UserAuthorization {
     public void enterByPersonalAccountButtonTest() {
         MainSite mainSite = new MainSite(driver);
         mainSite.clickAccountButton();
-        page_object.UserAuthentication userAuthentication = new page_object.UserAuthentication(driver);
-        userAuthentication.authUser(USER_EMAIL, USER_PASSWORD);
+        pageobject.UserAuthentication userAuthentication = new pageobject.UserAuthentication(driver);
+        userAuthentication.authUser(userEmail, userPassword);
         mainSite.waitMainPageLoad();
     }
 
@@ -79,7 +109,7 @@ public class UserAuthorization {
     public void signInByPersonalAccountButtonTest() {
         MainSite mainSite = new MainSite(driver);
         mainSite.clickLoginButton();
-        page_object.UserAuthentication userAuthentication = new page_object.UserAuthentication(driver);
+        pageobject.UserAuthentication userAuthentication = new pageobject.UserAuthentication(driver);
         userAuthentication.clickRegisterButton();
         Register register = new Register(driver);
         String name = randomAlphanumeric(3, 10);
@@ -97,18 +127,27 @@ public class UserAuthorization {
     public void verifyPasswordRecoveryFormatTest() {
         MainSite mainSite = new MainSite(driver);
         mainSite.clickAccountButton();
-        page_object.UserAuthentication userAuthentication = new page_object.UserAuthentication(driver);
+        pageobject.UserAuthentication userAuthentication = new pageobject.UserAuthentication(driver);
         userAuthentication.clickResetPasswordLink();
         RecoverPassword recoverPassword = new RecoverPassword(driver);
         recoverPassword.waitRecoveryPageLoad();
         recoverPassword.clickOnEnter();
-        userAuthentication.authUser(USER_EMAIL, USER_PASSWORD);
+        userAuthentication.authUser(userEmail, userPassword);
         mainSite.waitMainPageLoad();
     }
 
     @After
     public void finish() {
-        // Закрытие браузера
         driver.quit();
+    }
+
+    public void deleteUser() {
+        RestAssured.baseURI = "https://stellarburgers.nomoreparties.site";
+        Response response = RestAssured.given()
+                .queryParam("email", userEmail)
+                .when()
+                .delete("/api/users");
+
+        Assert.assertEquals(200, response.getStatusCode());
     }
 }

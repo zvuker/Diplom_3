@@ -1,13 +1,13 @@
-package page_object;
+package pageobject;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.By;
-import io.qameta.allure.Step;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import static org.junit.Assert.*;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import io.qameta.allure.Step;
+
+import static org.junit.Assert.assertEquals;
 
 public class MainSite {
 
@@ -30,73 +30,85 @@ public class MainSite {
         this.driver = driver;
     }
 
-    @Step("клик кнопка Войти в аккаунт'")
+    @Step("Клик кнопка Войти в аккаунт")
     public void clickLoginButton() {
         driver.findElement(signInButton).click();
         waitInvisibilityAnimation();
     }
 
-    @Step("клик кнопка Личный Кабинет")
+    @Step("Клик кнопка Личный Кабинет")
     public void clickAccountButton() {
         driver.findElement(accessButton).click();
         waitInvisibilityAnimation();
     }
 
-    @Step("клик логотип")
+    @Step("Клик логотип")
     public void clickOnLogo() {
         driver.findElement(logo).click();
         waitInvisibilityAnimation();
     }
 
-    @Step("клик кнопка Конструктор")
+    @Step("Клик кнопка Конструктор")
     public void clickOnConstructorButton() {
         driver.findElement(builderButton).click();
         waitInvisibilityAnimation();
     }
 
 
-    @Step("клик кнопка Булки")
-    public void clickBunButton() throws InterruptedException {
-        Thread.sleep(500);
+    @Step("Клик кнопка Булки")
+    public void clickBunButton() {
         driver.findElement(bunSelector).click();
-
+        waitLoadPage();
     }
-    @Step("клик кнопка Начинки")
-    public void clickFillingButton() throws InterruptedException {
-        Thread.sleep(500);
+
+    @Step("Клик кнопка Начинки")
+    public void clickFillingButton() {
         driver.findElement(fillingsSelector).click();
+        waitLoadPage();
     }
 
-    @Step("клик кнопка Соуса")
-    public void clickSauceButton() throws InterruptedException {
-        Thread.sleep(500);
+    @Step("Клик кнопка Соуса")
+    public void clickSauceButton() {
         driver.findElement(saucesSelector).click();
+        waitLoadPage();
     }
 
-    public void testToppingBun() throws InterruptedException {
-        Thread.sleep(500);
+    public void testToppingBun() {
         String countActivity = driver.findElement(activitySelector).getText();
         assertEquals("Булки", countActivity);
     }
 
-    public void testToppingFillings() throws InterruptedException {
-        Thread.sleep(1000);
+    public void testToppingFillings() {
         String countActivity = driver.findElement(activitySelector).getText();
         assertEquals(countActivity,"Начинки");
     }
-    public void testToppingSauce() throws InterruptedException {
-        Thread.sleep(500);
+
+    public void testToppingSauce() {
         String countActivity = driver.findElement(activitySelector).getText();
-        assertEquals(countActivity,"Соусы");
+        assertEquals("Соусы", countActivity);
+    }
+    @Step("проверка, что текст находится в разделе 'Булки'")
+    public boolean isTextInBunsSection() {
+        return driver.findElement(activitySelector).getAttribute("class").contains("tab_tab_type_current__2BEPc");
     }
 
-    @Step("ожидание главная, текст Соберите бургер")
+    @Step("рроверка, что текст находится в разделе 'Начинки'")
+    public boolean isTextInFillingsSection() {
+        return driver.findElement(activitySelector).getAttribute("class").contains("tab_tab_type_current__2BEPc");
+    }
+
+    @Step("проверка, что текст находится в разделе 'Соусы'")
+    public boolean isTextInSaucesSection() {
+        return driver.findElement(activitySelector).getAttribute("class").contains("tab_tab_type_current__2BEPc");
+    }
+
+    @Step("ожидание главной страницы, текст Соберите бургер")
     public void waitMainPageLoad() {
         new WebDriverWait(driver, 15)
                 .until(ExpectedConditions.visibilityOfElementLocated(burgerMainText));
     }
 
-    @Step("ожидание загрузка картинка и текст на главной")
+    @Step("ожидание загрузки картинки и текста на главной странице")
     public void waitForLoadBunsHeader() {
         new WebDriverWait(driver, 10)
                 .until(ExpectedConditions.visibilityOfElementLocated(bunImage));
@@ -104,31 +116,21 @@ public class MainSite {
                 .until(ExpectedConditions.visibilityOfElementLocated(bunsText));
     }
 
-    @Step("ожидание загрузка картинка с соусом на главной")
+    @Step("ожидание загрузки картинки с соусом на главной странице")
     public void waitForLoadSaucesHeader() {
         new WebDriverWait(driver, 10)
                 .until(ExpectedConditions.visibilityOfElementLocated(saucesImage));
         waitLoadPage();
-
     }
 
-    @Step("ожидание загрузка начинки на главной")
+    @Step("ожидание загрузки начинки на главной странице")
     public void waitForLoadFillingsHeader() {
         new WebDriverWait(driver, 10)
                 .until(ExpectedConditions.visibilityOfElementLocated(fillingsImage));
         waitLoadPage();
     }
 
-    @Step("ожидание загрузки страницы, допожидание")
-    public void waitLoadPage() {
-        new WebDriverWait(driver, 20)
-                .until((ExpectedCondition<Boolean>) wd ->
-                        ((JavascriptExecutor) wd)
-                                .executeScript("return document.readyState")
-                                .equals("complete"));
-    }
-
-    @Step("ожидание загрузка страницы, анимация пропала")
+    @Step("ожидание загрузки страницы, анимация пропала")
     public void waitInvisibilityAnimation() {
         new WebDriverWait(driver, 10)
                 .until(ExpectedConditions.invisibilityOfElementLocated
@@ -136,5 +138,10 @@ public class MainSite {
         waitLoadPage();
     }
 
-
+    @Step("ожидание загрузки страницы")
+    public void waitLoadPage() {
+        new WebDriverWait(driver, 20)
+                .until(driver -> ((JavascriptExecutor) driver)
+                        .executeScript("return document.readyState").equals("complete"));
+    }
 }
