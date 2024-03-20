@@ -7,42 +7,36 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(Parameterized.class)
 public class UserPageTransitionsTest {
 
     private WebDriver driver;
-    private String browserType;
-
-    public UserPageTransitionsTest(String browserType) {
-        this.browserType = browserType;
-    }
+    private final static String BASE_URL = "https://stellarburgers.nomoreparties.site/";
 
     @Before
     public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "C:\\Chromewebdriver\\WebDriver\\bin\\yandexdriver.exe");
-        ChromeOptions options = new ChromeOptions();
-        if (browserType.equals("yandexdriver")) {
-            options.setBinary("C:\\Users\\ПК\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe");
+        String browserType = System.getenv("BROWSER");
+        if (browserType == null || browserType.isEmpty()) {
+            browserType = "chromedriver";
         }
-        driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.navigate().to("https://stellarburgers.nomoreparties.site/");
-    }
 
-    @Parameterized.Parameters(name = "проверка браузера: {0}")
-    public static List<String> dataDriver() {
-        String browser = System.getenv("BROWSER");
-        if (browser != null && !browser.isEmpty()) {
-            return Arrays.asList(browser);
-        } else {
-            return Arrays.asList("yandexdriver", "chromedriver");
+        if (browserType.equals("chromedriver")) {
+            String chromeDriverPath = "src/main/resources/chromedriver.exe";
+            System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+            ChromeOptions options = new ChromeOptions();
+            driver = new ChromeDriver(options);
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            driver.navigate().to(BASE_URL);
+        } else if (browserType.equals("yandexdriver")) {
+            String yandexDriverPath = "src/main/resources/yandexdriver.exe";
+            System.setProperty("webdriver.chrome.driver", yandexDriverPath);
+            ChromeOptions options = new ChromeOptions();
+            options.setBinary("src/main/resources/yandexdriver.exe");
+            driver = new ChromeDriver(options);
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            driver.navigate().to(BASE_URL);
         }
     }
 

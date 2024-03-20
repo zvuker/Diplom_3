@@ -80,26 +80,19 @@ public class MainSite {
 
     public void testToppingFillings() {
         String countActivity = driver.findElement(activitySelector).getText();
-        assertEquals(countActivity,"Начинки");
+        assertEquals("Начинки", countActivity);
     }
 
     public void testToppingSauce() {
         String countActivity = driver.findElement(activitySelector).getText();
         assertEquals("Соусы", countActivity);
     }
-    @Step("проверка, что текст находится в разделе 'Булки'")
-    public boolean isTextInBunsSection() {
-        return driver.findElement(activitySelector).getAttribute("class").contains("tab_tab_type_current__2BEPc");
-    }
 
-    @Step("рроверка, что текст находится в разделе 'Начинки'")
-    public boolean isTextInFillingsSection() {
-        return driver.findElement(activitySelector).getAttribute("class").contains("tab_tab_type_current__2BEPc");
-    }
-
-    @Step("проверка, что текст находится в разделе 'Соусы'")
-    public boolean isTextInSaucesSection() {
-        return driver.findElement(activitySelector).getAttribute("class").contains("tab_tab_type_current__2BEPc");
+    @Step("проверка, что текст находится в разделе '{sectionName}'")
+    public boolean isTextInSection(String sectionName) {
+        String expectedClass = "tab_tab_type_current__2BEPc";
+        String actualClass = driver.findElement(activitySelector).getAttribute("class");
+        return actualClass.contains(expectedClass);
     }
 
     @Step("ожидание главной страницы, текст Соберите бургер")

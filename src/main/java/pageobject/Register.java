@@ -48,7 +48,7 @@ public class Register {
     }
 
     @Step("ожидание загрузки страницы после текста регистрация")
-    public void waitRegisterPage() {
+    public void waitRegisterPage(int i) {
         new WebDriverWait(driver, 3)
                 .until(ExpectedConditions.visibilityOfElementLocated(singInText));
     }

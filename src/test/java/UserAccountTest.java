@@ -1,6 +1,4 @@
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+import api.UserRegistrationApi;
 import org.junit.*;
 import pageobject.MainSite;
 import pageobject.UserAuthentication;
@@ -10,72 +8,45 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(Parameterized.class)
 public class UserAccountTest {
 
     private WebDriver driver;
-    private String browserType;
+    private final static String BASE_URL = "https://stellarburgers.nomoreparties.site";
     private final static String userEmail = "2055@gmail.com";
     private final static String userPassword = "1234567";
 
-    public UserAccountTest(String browserType) {
-        this.browserType = browserType;
-    }
-
     @Before
     public void setUp() {
-        if (browserType.equals("chromedriver")) {
-            System.setProperty("webdriver.chrome.driver", "C:\\Chromewebdriver\\WebDriver\\bin\\chromedriver.exe");
-            ChromeOptions options = new ChromeOptions();
-            driver = new ChromeDriver(options);
-            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-            driver.navigate().to("https://stellarburgers.nomoreparties.site/");
-        } else if (browserType.equals("yandexdriver")) {
-            System.setProperty("webdriver.chrome.driver", "C:\\Chromewebdriver\\WebDriver\\bin\\yandexdriver.exe");
-            ChromeOptions options = new ChromeOptions();
-            options.setBinary("C:\\Users\\ПК\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe");
-            driver = new ChromeDriver(options);
-            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-            driver.navigate().to("https://stellarburgers.nomoreparties.site/");
+        String browserType = System.getenv("BROWSER");
+        if (browserType == null || browserType.isEmpty()) {
+            browserType = "chromedriver";
         }
-    }
 
-    @Parameterized.Parameters(name = "проверка браузера: {0}")
-    public static List<String> dataDriver() {
-        String browser = System.getenv("BROWSER");
-        if (browser != null && !browser.isEmpty()) {
-            return Arrays.asList(browser);
-        } else {
-            return Arrays.asList("yandexdriver", "chromedriver");
+        if (browserType.equals("chromedriver")) {
+            String chromeDriverPath = "src/main/resources/chromedriver.exe";
+            System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+            ChromeOptions options = new ChromeOptions();
+            driver = new ChromeDriver(options);
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            driver.navigate().to(BASE_URL);
+        } else if (browserType.equals("yandexdriver")) {
+            String yandexDriverPath = "src/main/resources/yandexdriver.exe";
+            System.setProperty("webdriver.chrome.driver", yandexDriverPath);
+            ChromeOptions options = new ChromeOptions();
+            options.setBinary("src/main/resources/yandexdriver.exe");
+            driver = new ChromeDriver(options);
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            driver.navigate().to(BASE_URL);
         }
     }
 
     @Before
     public void createUser() {
-        RestAssured.baseURI = "https://stellarburgers.nomoreparties.site";
-        Response response = RestAssured.given()
-                .contentType(ContentType.JSON)
-                .body("{\n" +
-                        "\"email\": \"" + userEmail + "\",\n" +
-                        "\"password\": \"" + userPassword + "\",\n" +
-                        "\"name\": \"Username\"\n" +
-                        "}")
-                .when()
-                .post("/api/auth/register");
-
-        if (response.getStatusCode() != 200 && !response.getBody().asString().contains("User already exists")) {
-            System.out.println("Ошибка создания пользователя: " + response.getBody().asString());
-            Assert.fail("Ошибка создания пользователя");
-        } else if (response.getStatusCode() == 200) {
-            System.out.println("Пользователь успешно создан");
-        }
+        UserRegistrationApi userRegistrationAPI = new UserRegistrationApi();
+        userRegistrationAPI.registerUser("Username", userEmail, userPassword);
     }
 
     @Test
@@ -139,13 +110,9 @@ public class UserAccountTest {
         driver.quit();
     }
 
+    @After
     public void deleteUser() {
-        RestAssured.baseURI = "https://stellarburgers.nomoreparties.site";
-        Response response = RestAssured.given()
-                .queryParam("email", userEmail)
-                .when()
-                .delete("/api/users");
-
-        Assert.assertEquals(200, response.getStatusCode());
+        UserRegistrationApi userRegistrationAPI = new UserRegistrationApi();
+        userRegistrationAPI.deleteUser(userEmail);
     }
 }
