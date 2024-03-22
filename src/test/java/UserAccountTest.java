@@ -15,8 +15,8 @@ public class UserAccountTest {
 
     private WebDriver driver;
     private final static String BASE_URL = "https://stellarburgers.nomoreparties.site";
-    private final static String userEmail = "2055@gmail.com";
-    private final static String userPassword = "1234567";
+    private final static String USER_EMAIL = "2055@gmail.com";
+    private final static String USER_PASSWORD = "1234567";
 
     @Before
     public void setUp() {
@@ -46,7 +46,7 @@ public class UserAccountTest {
     @Before
     public void createUser() {
         UserRegistrationApi userRegistrationAPI = new UserRegistrationApi();
-        userRegistrationAPI.registerUser("Username", userEmail, userPassword);
+        userRegistrationAPI.registerUser("Username", USER_EMAIL, USER_PASSWORD);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class UserAccountTest {
         mainSite.clickAccountButton();
         UserAuthentication userAuthentication = new UserAuthentication(driver);
         userAuthentication.waitForPageLoad();
-        userAuthentication.authUser(userEmail, userPassword);
+        userAuthentication.authUser(USER_EMAIL, USER_PASSWORD);
         mainSite.waitMainPageLoad();
         mainSite.clickAccountButton();
         UserAccount userAccount = new UserAccount(driver);
@@ -113,6 +113,6 @@ public class UserAccountTest {
     @After
     public void deleteUser() {
         UserRegistrationApi userRegistrationAPI = new UserRegistrationApi();
-        userRegistrationAPI.deleteUser(userEmail);
+        userRegistrationAPI.deleteUser(USER_EMAIL);
     }
 }

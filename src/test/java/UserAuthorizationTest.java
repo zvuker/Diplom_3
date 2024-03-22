@@ -1,3 +1,4 @@
+import api.UserAccountApi;
 import org.junit.*;
 import pageobject.MainSite;
 import pageobject.RecoverPassword;
@@ -17,8 +18,8 @@ public class UserAuthorizationTest {
     private WebDriver driver;
     private String browserType;
     private final static String BASE_URL = "https://stellarburgers.nomoreparties.site/";
-    private final static String userEmail = "2054@gmail.com";
-    private final static String userPassword = "1234567";
+    private final static String USER_EMAIL = "2054@gmail.com";
+    private final static String USER_PASSWORD = "1234567";
 
     @Before
     public void setUp() {
@@ -48,7 +49,7 @@ public class UserAuthorizationTest {
     @Before
     public void createUser() {
         UserRegistrationApi userRegistrationAPI = new UserRegistrationApi();
-        userRegistrationAPI.registerUser("Username", userEmail, userPassword);
+        userRegistrationAPI.registerUser("Username", USER_EMAIL, USER_PASSWORD);
     }
 
 
@@ -59,7 +60,7 @@ public class UserAuthorizationTest {
         MainSite mainSite = new MainSite(driver);
         mainSite.clickLoginButton();
         UserAuthentication userAuthentication = new UserAuthentication(driver);
-        userAuthentication.authUser(userEmail, userPassword);
+        userAuthentication.authUser(USER_EMAIL, USER_PASSWORD);
         mainSite.waitMainPageLoad();
     }
 
@@ -70,7 +71,7 @@ public class UserAuthorizationTest {
         MainSite mainSite = new MainSite(driver);
         mainSite.clickAccountButton();
         UserAuthentication userAuthentication = new UserAuthentication(driver);
-        userAuthentication.authUser(userEmail, userPassword);
+        userAuthentication.authUser(USER_EMAIL, USER_PASSWORD);
         mainSite.waitMainPageLoad();
     }
 
@@ -90,11 +91,13 @@ public class UserAuthorizationTest {
         userAuthentication.waitForPageLoad();
         userAuthentication.authUser(email, password);
         mainSite.waitMainPageLoad();
+        UserAccountApi userAccountApi = new UserAccountApi();
+        userAccountApi.deleteUser(USER_EMAIL);
     }
 
     @Test
     @DisplayName("вход через форму восстановления пароля")
-    @Description("проверка входа через форму восстановления пароля")
+    @Description("проверка входа через форму восстановления пароля и удаление пользователя")
     public void verifyPasswordRecoveryFormatTest() {
         MainSite mainSite = new MainSite(driver);
         mainSite.clickAccountButton();
@@ -103,8 +106,10 @@ public class UserAuthorizationTest {
         RecoverPassword recoverPassword = new RecoverPassword(driver);
         recoverPassword.waitRecoveryPageLoad();
         recoverPassword.clickOnEnter();
-        userAuthentication.authUser(userEmail, userPassword);
+        userAuthentication.authUser(USER_EMAIL, USER_PASSWORD);
         mainSite.waitMainPageLoad();
+        UserAccountApi userAccountApi = new UserAccountApi();
+        userAccountApi.deleteUser(USER_EMAIL);
     }
 
     @After

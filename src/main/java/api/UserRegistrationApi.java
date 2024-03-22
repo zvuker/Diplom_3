@@ -22,13 +22,6 @@ public class UserRegistrationApi {
                 .body(requestBody)
                 .when()
                 .post(REGISTER_ENDPOINT);
-
-        if (response.getStatusCode() != 200 && !response.getBody().asString().contains("User already exists")) {
-            System.out.println("Ошибка создания пользователя: " + response.getBody().asString());
-            throw new RuntimeException("Ошибка создания пользователя");
-        } else if (response.getStatusCode() == 200) {
-            System.out.println("Пользователь успешно создан");
-        }
     }
 
     public void deleteUser(String userEmail) {

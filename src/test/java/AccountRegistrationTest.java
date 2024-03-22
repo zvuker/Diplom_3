@@ -1,3 +1,4 @@
+import api.UserAccountApi;
 import api.UserRegistrationApi;
 import org.junit.*;
 import pageobject.MainSite;
@@ -51,6 +52,8 @@ public class AccountRegistrationTest {
         String userName = "testUser";
         String userEmail = "test@example.com";
         String userPassword = "testPassword";
+        UserAccountApi userAccountApi = new UserAccountApi();
+        userAccountApi.deleteUser(userEmail);
     }
 
     @Test
@@ -65,6 +68,8 @@ public class AccountRegistrationTest {
         String userEmail = "test@example.com";
         String userPassword = "test";
         UserRegistrationApi.registerUser(userName, userEmail, userPassword);
+        UserAccountApi userAccountApi = new UserAccountApi();
+        userAccountApi.deleteUser(userEmail);
         Assert.assertTrue("Текст об ошибке отсутствует", driver.findElement(register.wrongPasswordText).isDisplayed());
     }
 
